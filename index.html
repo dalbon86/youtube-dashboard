@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v12 -->
+<!-- v13 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -106,6 +106,47 @@
       <div class="channel-avatar-fallback" style="background:${info.bg};display:none;">${info.text}</div>`;
   }
 
+  function drawUploadChart(id, totalH, longH, shortH, color) {
+    const ctx = document.getElementById(id); if(!ctx) return;
+    const lastIdx = totalH.length - 1;
+    charts[id] = new Chart(ctx, {
+      type: "line",
+      data: { labels: getMonths(), datasets: [{ data: totalH, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 36, left: 28, right: 28, bottom: 4 } },
+        plugins: {
+          legend: { display: false }, tooltip: { enabled: false },
+          datalabels: {
+            display: true,
+            color: color,
+            backgroundColor: "rgba(255,255,255,0.9)",
+            borderRadius: 4,
+            padding: { top: 2, bottom: 2, left: 5, right: 5 },
+            align: "top", anchor: "end", offset: 4, clamp: true,
+            font: (ctx) => {
+              return { size: 11, weight: "700" };
+            },
+            formatter: (v, ctx) => {
+              const i = ctx.dataIndex;
+              if(i === lastIdx) return String(v);
+              return `${v} (${longH[i]}/${shortH[i]})`;
+            },
+            labels: {
+              main: {
+                font: { size: 11, weight: "700" },
+              },
+              sub: {
+                font: { size: 9 },
+              }
+            }
+          }
+        },
+        scales: { x: { ticks: { font: { size: 11 }, color: "#bbb" }, grid: { display: false }, border: { display: false } }, y: { display: false, grace: "60%" } }
+      }
+    });
+  }
+
   function drawChart(id, data, color, fmt) {
     const ctx = document.getElementById(id); if(!ctx) return;
     charts[id] = new Chart(ctx, {
@@ -141,7 +182,7 @@
           <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1].toLocaleString()}건</span></div>
           ${changeHtml(calcChange(totalH))}
           <div class="upload-badges"><span class="badge long">롱폼 ${longH[longH.length-1]}</span><span class="badge short">숏폼 ${shortH[shortH.length-1]}</span></div>
-          <div class="mini-chart-wrap"><canvas id="u-${uid}" data-long='${JSON.stringify(longH)}' data-short='${JSON.stringify(shortH)}' data-total='${JSON.stringify(totalH)}'></canvas></div>
+          <div class="mini-chart-wrap"><canvas id="u-${uid}"></canvas></div>
         </div>
         <div class="metric-block">
           <div class="metric-label">당월 조회수</div>
@@ -163,14 +204,7 @@
         const uid=ch.replace(/\s/g,"");
         const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
         const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
-        const lastIdx = totalH.length - 1;
-
-        // 업로드 차트: 최근월은 숫자만, 이전월은 숫자(롱/숏)
-        drawChart(`u-${uid}`, totalH, "#6366f1", (v, ctx) => {
-          const i = ctx.dataIndex;
-          if(i === lastIdx) return String(v);
-          return `${v}(${longH[i]}/${shortH[i]})`;
-        });
+        drawUploadChart(`u-${uid}`, totalH, longH, shortH, "#6366f1");
         drawChart(`v-${uid}`, viewsH, "#f59e0b", v=>fmtViews(v));
         drawChart(`r-${uid}`, revenueH, "#10b981", v=>fmtMoney(v));
       });
