@@ -69,7 +69,7 @@
 <script>
   Chart.register(ChartDataLabels);
   const SHEETS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyFBNZzA4Ght-y8QuCJOhYcj2nGqtrbFhAzTTXdMzk37lGTKpdI_aBlyBVWn_STnsjyDHef5MtfFJ3/pub?output=csv";
-  const CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(SHEETS_URL);
+  const CSV_URL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(SHEETS_URL);
   const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
   const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
   let allData = [], charts = {};
