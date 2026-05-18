@@ -129,8 +129,13 @@
       const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
       const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
       const uid=ch.replace(/\s/g,"");
+      const AVATARS = {"스튜디오지니":{bg:"#6366f1",emoji:"지"},"스밍스":{bg:"#f59e0b",emoji:"스"},"쇼숏":{bg:"#10b981",emoji:"쇼"}};
+      const av = AVATARS[ch] || {bg:"#999",emoji:ch[0]};
       return `<div class="channel-card">
-        <div class="channel-name">${ch}</div>
+              <div class="channel-name" style="display:flex;align-items:center;gap:12px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:${av.bg};display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;flex-shrink:0;">${av.emoji}</div>
+                ${ch}
+              </div>
         <div class="metric-block">
           <div class="metric-label">업로드 건수</div>
           <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1].toLocaleString()}건</span></div>
