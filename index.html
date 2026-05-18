@@ -74,7 +74,7 @@
 </main>
 <script>
   Chart.register(ChartDataLabels);
-  const SHEET_ID = "1X2rZQ7gFUKNE6Bbf9iuKXObq0TZ1bqTOjDrlEkyw5Js";
+  const SHEET_ID = "2PACX-1vRyFBNZzA4Ght-y8QuCJOhYcj2nGqtrbFhAzTTXdMzk37lGTKpdI_aBlyBVWn_STnsjyDHef5MtfFJ3";
   const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
   const CHANNEL_INFO = {
     "스튜디오지니": { img: "sgn_profile.jpg", bg: "#6366f1", text: "지" },
@@ -205,7 +205,7 @@
   async function loadData() {
     document.getElementById("main").innerHTML='<div class="loading"><div class="spinner"></div><div>데이터를 불러오는 중...</div></div>';
     try {
-      const SHEETS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
+      const SHEETS_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?output=csv`;
       const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(SHEETS_URL));
       const text = await res.text();
       const rows = text.trim().split("\n").map(r=>r.split(","));
