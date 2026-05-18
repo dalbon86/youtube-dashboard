@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v9 -->
+<!-- v10 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -29,7 +29,8 @@
     @media (max-width: 900px) { .channel-grid { grid-template-columns: 1fr; } }
     .channel-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px 32px; }
     .channel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-    .channel-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 900; flex-shrink: 0; }
+    .channel-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #eee; }
+    .channel-avatar-fallback { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 900; flex-shrink: 0; }
     .channel-name { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
     .metric-block { padding: 22px 0; border-bottom: 1px solid var(--border); }
     .metric-block:last-child { border-bottom: none; padding-bottom: 0; }
@@ -75,10 +76,10 @@
   Chart.register(ChartDataLabels);
   const SHEET_ID = "1X2rZQ7gFUKNE6Bbf9iuKXObq0TZ1bqTOjDrlEkyw5Js";
   const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
-  const AVATARS = {
-    "스튜디오지니": { bg: "#6366f1", text: "지" },
-    "스밍스":       { bg: "#f59e0b", text: "스" },
-    "쇼숏":         { bg: "#10b981", text: "쇼" }
+  const CHANNEL_INFO = {
+    "스튜디오지니": { id: "UCXmRJfZ3atLVLDiO5Ufycvw", bg: "#6366f1", text: "지" },
+    "스밍스":       { id: "UCi38W5tDHRB9CYMSYIKColQ", bg: "#f59e0b", text: "스" },
+    "쇼숏":         { id: "UCxrO9SgJvf-gk3mw2qjumNQ", bg: "#10b981", text: "쇼" }
   };
   const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
   let allData = [], charts = {};
@@ -97,6 +98,15 @@
   function fmtViews(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return v.toLocaleString(); }
   function fmtMoney(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return v.toLocaleString(); }
   function destroyCharts() { Object.values(charts).forEach(c=>c.destroy()); charts={}; }
+
+  function avatarHtml(ch) {
+    const info = CHANNEL_INFO[ch];
+    if(!info) return `<div class="channel-avatar-fallback" style="background:#999;">${ch[0]}</div>`;
+    const imgUrl = `https://yt3.googleusercontent.com/ytc/${info.id}`;
+    return `<img class="channel-avatar" src="${imgUrl}" alt="${ch}"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="channel-avatar-fallback" style="background:${info.bg};display:none;">${info.text}</div>`;
+  }
 
   function drawChart(id, data, color, fmt) {
     const ctx = document.getElementById(id); if(!ctx) return;
@@ -120,13 +130,12 @@
     const months = getMonths();
     if(!months.length) { document.getElementById("main").innerHTML='<div class="no-data">데이터가 없어요.</div>'; return; }
     document.getElementById("main").innerHTML = `<div class="channel-grid">${CHANNELS.map(ch => {
-      const av = AVATARS[ch] || { bg: "#999", text: ch[0] };
       const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
       const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
       const uid=ch.replace(/\s/g,"");
       return `<div class="channel-card">
         <div class="channel-header">
-          <div class="channel-avatar" style="background:${av.bg};">${av.text}</div>
+          ${avatarHtml(ch)}
           <div class="channel-name">${ch}</div>
         </div>
         <div class="metric-block">
