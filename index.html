@@ -258,8 +258,8 @@
             <div class="content-info">
               <div class="content-title">${item.콘텐츠명||"-"}</div>
               <div class="content-meta">
-                <span>⏱ ${item["평균 시청 지속 시"]||item["평균 시청 지속 시간"]||"-"}</span>
-                <span class="content-views-val">👁 ${Number(item.조회수).toLocaleString()}</span>
+                <span>평균 시청시간 ${item["평균 시청 지속 시"]||item["평균 시청 지속 시간"]||"-"}</span>
+                <span class="content-views-val">조회수 ${Number(item.조회수).toLocaleString()}</span>
               </div>
             </div>
           </a>`;
