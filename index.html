@@ -127,10 +127,10 @@
             font: (ctx) => {
               return { size: 11, weight: "700" };
             },
-            formatter: (v, ctx) => {
+           formatter: (v, ctx) => {
               const i = ctx.dataIndex;
               if(i === lastIdx) return String(v);
-              return [`${v}`, `(${longH[i]}/${shortH[i]})`];
+              return `${v}\n(${longH[i]}/${shortH[i]})`;
             },
             labels: {
               main: {
