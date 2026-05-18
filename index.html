@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v6 -->
+<!-- v7 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -79,6 +79,7 @@
   function calcChange(arr) { if(arr.length<2)return null; const p=arr[arr.length-2],c=arr[arr.length-1]; if(!p)return null; return((c-p)/Math.abs(p))*100; }
   function changeHtml(pct) { if(pct===null)return'<span class="metric-change neutral">-</span>'; const cls=pct>=0?"up":"down",arrow=pct>=0?"▲":"▼"; return`<span class="metric-change ${cls}">${arrow} ${Math.abs(pct).toFixed(1)}%</span>`; }
   function fmtViews(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return(v/10000).toFixed(0)+"만"; return v.toLocaleString(); }
+  function fmtMoney(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return(v/10000).toFixed(0)+"만"; return v.toLocaleString(); }
   function destroyCharts() { Object.values(charts).forEach(c=>c.destroy()); charts={}; }
 
   function drawChart(id, data, color, fmt) {
@@ -103,7 +104,8 @@
     const months = getMonths();
     if(!months.length) { document.getElementById("main").innerHTML='<div class="no-data">데이터가 없어요.</div>'; return; }
     document.getElementById("main").innerHTML = `<div class="channel-grid">${CHANNELS.map(ch => {
-      const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]), viewsH=getHistory(ch,"조회수");
+      const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
+      const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
       const uid=ch.replace(/\s/g,"");
       return `<div class="channel-card">
         <div class="channel-name">${ch}</div>
@@ -118,14 +120,21 @@
           <div class="metric-main"><span class="metric-value">${fmtViews(viewsH[viewsH.length-1])}</span>${changeHtml(calcChange(viewsH))}</div>
           <div class="mini-chart-wrap"><canvas id="v-${uid}"></canvas></div>
         </div>
+        <div class="metric-block">
+          <div class="metric-label">수익 (원)</div>
+          <div class="metric-main"><span class="metric-value">₩${fmtMoney(revenueH[revenueH.length-1])}</span>${changeHtml(calcChange(revenueH))}</div>
+          <div class="mini-chart-wrap"><canvas id="r-${uid}"></canvas></div>
+        </div>
       </div>`;
     }).join("")}</div>`;
     requestAnimationFrame(() => {
       CHANNELS.forEach(ch => {
         const uid=ch.replace(/\s/g,"");
-        const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]), viewsH=getHistory(ch,"조회수");
+        const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
+        const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
         drawChart(`u-${uid}`, totalH, "#6366f1", v=>String(v));
         drawChart(`v-${uid}`, viewsH, "#f59e0b", v=>fmtViews(v));
+        drawChart(`r-${uid}`, revenueH, "#10b981", v=>"₩"+fmtMoney(v));
       });
     });
     document.getElementById("lastUpdated").textContent = `마지막 업데이트: ${new Date().toLocaleString("ko-KR",{month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}`;
