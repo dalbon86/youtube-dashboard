@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v11 -->
+<!-- v12 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -101,9 +101,8 @@
 
   function avatarHtml(ch) {
     const info = CHANNEL_INFO[ch] || { bg: "#999", text: ch[0] };
-    return `
-      <img class="channel-avatar" src="${info.img}"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+    return `<img class="channel-avatar" src="${info.img}"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
       <div class="channel-avatar-fallback" style="background:${info.bg};display:none;">${info.text}</div>`;
   }
 
@@ -114,10 +113,10 @@
       data: { labels: getMonths(), datasets: [{ data, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
       options: {
         responsive: true, maintainAspectRatio: false,
-        layout: { padding: { top: 30, left: 24, right: 24, bottom: 4 } },
+        layout: { padding: { top: 30, left: 28, right: 28, bottom: 4 } },
         plugins: {
           legend: { display: false }, tooltip: { enabled: false },
-          datalabels: { display: true, color: color, backgroundColor: "rgba(255,255,255,0.9)", borderRadius: 4, padding: { top: 2, bottom: 2, left: 5, right: 5 }, font: { size: 12, weight: "700" }, align: "top", anchor: "end", offset: 4, clamp: true, formatter: fmt }
+          datalabels: { display: true, color: color, backgroundColor: "rgba(255,255,255,0.9)", borderRadius: 4, padding: { top: 2, bottom: 2, left: 5, right: 5 }, font: { size: 11, weight: "700" }, align: "top", anchor: "end", offset: 4, clamp: true, formatter: fmt }
         },
         scales: { x: { ticks: { font: { size: 11 }, color: "#bbb" }, grid: { display: false }, border: { display: false } }, y: { display: false, grace: "60%" } }
       }
@@ -142,7 +141,7 @@
           <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1].toLocaleString()}건</span></div>
           ${changeHtml(calcChange(totalH))}
           <div class="upload-badges"><span class="badge long">롱폼 ${longH[longH.length-1]}</span><span class="badge short">숏폼 ${shortH[shortH.length-1]}</span></div>
-          <div class="mini-chart-wrap"><canvas id="u-${uid}"></canvas></div>
+          <div class="mini-chart-wrap"><canvas id="u-${uid}" data-long='${JSON.stringify(longH)}' data-short='${JSON.stringify(shortH)}' data-total='${JSON.stringify(totalH)}'></canvas></div>
         </div>
         <div class="metric-block">
           <div class="metric-label">당월 조회수</div>
@@ -164,10 +163,12 @@
         const uid=ch.replace(/\s/g,"");
         const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
         const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
-        drawChart(`u-${uid}`, totalH, "#6366f1", (v,ctx) => {
+        const lastIdx = totalH.length - 1;
+
+        // 업로드 차트: 최근월은 숫자만, 이전월은 숫자(롱/숏)
+        drawChart(`u-${uid}`, totalH, "#6366f1", (v, ctx) => {
           const i = ctx.dataIndex;
-          const isLast = i === totalH.length - 1;
-          if(isLast) return String(v);
+          if(i === lastIdx) return String(v);
           return `${v}(${longH[i]}/${shortH[i]})`;
         });
         drawChart(`v-${uid}`, viewsH, "#f59e0b", v=>fmtViews(v));
