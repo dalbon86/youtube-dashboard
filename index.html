@@ -138,20 +138,20 @@
           <div class="channel-name">${ch}</div>
         </div>
         <div class="metric-block">
-          <div class="metric-label">업로드 건수</div>
+          <div class="metric-label">당월 업로드 건수</div>
           <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1].toLocaleString()}건</span></div>
           ${changeHtml(calcChange(totalH))}
           <div class="upload-badges"><span class="badge long">롱폼 ${longH[longH.length-1]}</span><span class="badge short">숏폼 ${shortH[shortH.length-1]}</span></div>
           <div class="mini-chart-wrap"><canvas id="u-${uid}"></canvas></div>
         </div>
         <div class="metric-block">
-          <div class="metric-label">조회수</div>
+          <div class="metric-label">당월 조회수</div>
           <div class="metric-main"><span class="metric-value">${fmtViews(viewsH[viewsH.length-1])}</span></div>
           ${changeHtml(calcChange(viewsH))}
           <div class="mini-chart-wrap"><canvas id="v-${uid}"></canvas></div>
         </div>
         <div class="metric-block">
-          <div class="metric-label">수익 (원)</div>
+          <div class="metric-label">당월 수익 (원)</div>
           <div class="metric-main"><span class="metric-value">${fmtMoney(revenueH[revenueH.length-1])}</span></div>
           ${changeHtml(calcChange(revenueH))}
           <div class="mini-chart-wrap"><canvas id="r-${uid}"></canvas></div>
