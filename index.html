@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v17 -->
+<!-- v18 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -56,18 +56,29 @@
     .mini-chart-wrap { height: 110px; position: relative; }
 
     /* 콘텐츠별 탭 */
-    .content-section { margin-bottom: 32px; }
-    .content-section-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .content-section { margin-bottom: 36px; }
+    .content-section-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .content-section-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+    .content-section-name { font-size: 16px; font-weight: 800; }
+    .month-select {
+      border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px;
+      font-size: 13px; font-weight: 600; color: var(--text); background: var(--white);
+      cursor: pointer; font-family: inherit; outline: none;
+    }
+    .popular-label { font-size: 12px; color: var(--muted); font-weight: 600; }
     .content-table { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; border-collapse: collapse; }
     .content-table th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); background: #fafaf9; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
     .content-table th.right { text-align: right; }
     .content-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
     .content-table tr:last-child td { border-bottom: none; }
     .content-table tr:hover td { background: #fafaf9; }
-    .content-title-cell { font-weight: 600; color: var(--text); max-width: 400px; }
+    .content-title-cell { font-weight: 600; color: var(--text); }
     .content-views { text-align: right; font-weight: 700; color: #f59e0b; font-size: 14px; }
     .content-duration { text-align: right; color: var(--muted); font-size: 13px; }
-    .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 800; margin-right: 4px; }
+    .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 800; margin-right: 6px; flex-shrink: 0; }
     .rank-1 { background: #fef9c3; color: #854d0e; }
     .rank-2 { background: #f1f5f9; color: #475569; }
     .rank-3 { background: #fff7ed; color: #9a3412; }
@@ -116,6 +127,7 @@
   const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
 
   let monthlyData = [], contentData = [], charts = {}, currentTab = "monthly";
+  let selectedMonths = {}; // 채널별 선택된 월
 
   function parseCSV(text) {
     const rows = text.trim().split("\n").map(r => {
@@ -135,6 +147,13 @@
   function getMonths() {
     const all = [...new Set(monthlyData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
     return all.slice(-3);
+  }
+  function getLatestMonth() {
+    const all = [...new Set(monthlyData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
+    return all[all.length-1];
+  }
+  function getContentMonths() {
+    return [...new Set(contentData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
   }
   function getHistory(ch,key) { return getMonths().map(m=>{ const r=monthlyData.find(r=>r.채널===ch&&r.월===m); return r?Number(r[key])||0:0; }); }
   function calcChange(arr) { if(arr.length<2)return null; const p=arr[arr.length-2],c=arr[arr.length-1]; if(!p)return null; return((c-p)/Math.abs(p))*100; }
@@ -236,49 +255,62 @@
     });
   }
 
-  function renderContent() {
-    destroyCharts();
-    if(!contentData.length) { document.getElementById("main").innerHTML='<div class="no-data">콘텐츠 데이터가 없어요.</div>'; return; }
-
-    const months = [...new Set(contentData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
-    const latestMonth = months[months.length-1];
-    const filtered = contentData.filter(r=>r.월===latestMonth);
-    const byChannel = {};
-    CHANNELS.forEach(ch => { byChannel[ch] = filtered.filter(r=>r.채널명===ch).sort((a,b)=>Number(b.조회수)-Number(a.조회수)); });
+  function renderContentSection(ch) {
+    const months = getContentMonths();
+    const latestMonth = getLatestMonth(); // 시트1 기준 최근 월
+    const selectedMonth = selectedMonths[ch] || latestMonth;
+    const info = CHANNEL_INFO[ch] || { bg: "#999", text: ch[0] };
+    const items = contentData.filter(r => r.채널명===ch && r.월===selectedMonth)
+      .sort((a,b) => Number(b.조회수)-Number(a.조회수))
+      .slice(0, 5);
 
     const rankBadge = (i) => {
       const cls = i===0?"rank-1":i===1?"rank-2":i===2?"rank-3":"rank-other";
       return `<span class="rank-badge ${cls}">${i+1}</span>`;
     };
 
-    document.getElementById("main").innerHTML = CHANNELS.map(ch => {
-      const items = byChannel[ch];
-      if(!items?.length) return "";
-      const info = CHANNEL_INFO[ch] || { bg: "#999", text: ch[0] };
-      return `<div class="content-section">
-        <div class="content-section-title">
-          <img style="width:32px;height:32px;border-radius:50%;object-fit:cover;" src="${info.img}" onerror="this.style.display='none'" />
-          ${ch} · ${latestMonth}
-        </div>
-        <table class="content-table">
-          <thead>
+    const uid = ch.replace(/\s/g,"");
+    return `<div class="content-section" id="section-${uid}">
+      <div class="content-section-header">
+        <img class="content-section-avatar" src="${info.img}" onerror="this.style.display='none'" />
+        <span class="content-section-name">${ch}</span>
+        <select class="month-select" onchange="changeMonth('${ch}', this.value)">
+          ${months.map(m => `<option value="${m}" ${m===selectedMonth?"selected":""}>${m}</option>`).join("")}
+        </select>
+        <span class="popular-label">인기 콘텐츠 상위 5개</span>
+      </div>
+      ${items.length ? `
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th>콘텐츠명</th>
+            <th class="right">평균 시청 지속 시간</th>
+            <th class="right">조회수</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((item,i) => `
             <tr>
-              <th>콘텐츠명</th>
-              <th class="right">평균 시청 지속 시간</th>
-              <th class="right">조회수</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${items.map((item,i) => `
-              <tr>
-                <td class="content-title-cell">${rankBadge(i)}${item.콘텐츠명||item["콘텐츠명"]||"-"}</td>
-                <td class="content-duration">${item["평균 시청 지속 시"]||item["평균 시청 지속 시간"]||"-"}</td>
-                <td class="content-views">${Number(item.조회수).toLocaleString()}</td>
-              </tr>`).join("")}
-          </tbody>
-        </table>
-      </div>`;
-    }).join("");
+              <td class="content-title-cell">${rankBadge(i)}${item.콘텐츠명||"-"}</td>
+              <td class="content-duration">${item["평균 시청 지속 시"]||item["평균 시청 지속 시간"]||"-"}</td>
+              <td class="content-views">${Number(item.조회수).toLocaleString()}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>` : `<div class="no-data" style="padding:30px;">이 달 데이터가 없어요.</div>`}
+    </div>`;
+  }
+
+  function renderContent() {
+    destroyCharts();
+    if(!contentData.length) { document.getElementById("main").innerHTML='<div class="no-data">콘텐츠 데이터가 없어요.</div>'; return; }
+    document.getElementById("main").innerHTML = CHANNELS.map(ch => renderContentSection(ch)).join("");
+  }
+
+  function changeMonth(ch, month) {
+    selectedMonths[ch] = month;
+    const uid = ch.replace(/\s/g,"");
+    const section = document.getElementById(`section-${uid}`);
+    if(section) section.outerHTML = renderContentSection(ch);
   }
 
   function switchTab(tab) {
