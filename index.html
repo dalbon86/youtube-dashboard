@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v14 -->
+<!-- v15 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -20,11 +20,7 @@
     .logo { width: 36px; height: 36px; background: var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; }
     .header-title { font-size: 17px; font-weight: 900; letter-spacing: -0.5px; }
     .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .refresh-btn { font-size: 12px; color: var(--muted); background: #f0f0ee; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-family: inherit; }
     main { padding: 32px 40px; max-width: 1400px; margin: 0 auto; }
-    .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 16px; color: var(--muted); }
-    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
     .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     @media (max-width: 900px) { .channel-grid { grid-template-columns: 1fr; } }
     .channel-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px 32px; }
@@ -48,7 +44,6 @@
     .badge.long { background: #eef2ff; color: #3730a3; }
     .badge.short { background: #fff7ed; color: #c2410c; }
     .mini-chart-wrap { height: 110px; position: relative; }
-    .no-data { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
     .last-updated { font-size: 12px; color: var(--muted); }
   </style>
 </head>
@@ -61,35 +56,57 @@
       <div class="header-sub">스튜디오지니 · 스밍스 · 쇼숏</div>
     </div>
   </div>
-  <div style="display:flex;align-items:center;gap:16px;">
-    <span class="last-updated" id="lastUpdated"></span>
-    <button class="refresh-btn" onclick="loadData()">↺ 새로고침</button>
-  </div>
+  <span class="last-updated" id="lastUpdated"></span>
 </header>
 <div style="background:#fff;border-bottom:1px solid #e8e8e4;padding:0 40px;">
   <div style="display:inline-block;padding:14px 0;font-size:13px;font-weight:700;color:#111;border-bottom:2px solid #ff3b30;">최근 3개월 비교</div>
 </div>
-<main id="main">
-  <div class="loading"><div class="spinner"></div><div>데이터를 불러오는 중...</div></div>
+<main>
+  <div class="channel-grid" id="grid"></div>
 </main>
 <script>
   Chart.register(ChartDataLabels);
-  const SHEET_ID = "2PACX-1vRyFBNZzA4Ght-y8QuCJOhYcj2nGqtrbFhAzTTXdMzk37lGTKpdI_aBlyBVWn_STnsjyDHef5MtfFJ3";
-  const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
-  const CHANNEL_INFO = {
-    "스튜디오지니": { img: "sgn_profile.jpg", bg: "#6366f1", text: "지" },
-    "스밍스":       { img: "sms_profile.jpg", bg: "#f59e0b", text: "스" },
-    "쇼숏":         { img: "ss_profile.jpg",  bg: "#10b981", text: "쇼" }
-  };
-  const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
-  let allData = [], charts = {};
 
-  function getMonths() {
-    const all = [...new Set(allData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
-    return all.slice(-3);
+  // =============================================
+  // 매달 여기만 수정하세요!
+  // =============================================
+  const DATA = {
+    months: ["2월", "3월", "4월"],
+    channels: {
+      "스튜디오지니": {
+        img: "sgn_profile.jpg", bg: "#6366f1", text: "지",
+        롱폼:  [93, 52, 35],
+        숏폼:  [100, 62, 32],
+        조회수: [11310000, 6880000, 9090000],
+        수익:  [0, 0, 0],
+      },
+      "스밍스": {
+        img: "sms_profile.jpg", bg: "#f59e0b", text: "스",
+        롱폼:  [16, 16, 13],
+        숏폼:  [0, 0, 0],
+        조회수: [4220000, 3780000, 3240000],
+        수익:  [0, 0, 0],
+      },
+      "쇼숏": {
+        img: "ss_profile.jpg", bg: "#10b981", text: "쇼",
+        롱폼:  [0, 0, 0],
+        숏폼:  [111, 123, 94],
+        조회수: [7290000, 3420000, 3620000],
+        수익:  [0, 0, 0],
+      }
+    }
+  };
+  // =============================================
+
+  const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
+  let charts = {};
+
+  function calcChange(arr) {
+    if(arr.length < 2) return null;
+    const p = arr[arr.length-2], c = arr[arr.length-1];
+    if(!p) return null;
+    return ((c-p)/Math.abs(p))*100;
   }
-  function getHistory(ch,key) { return getMonths().map(m=>{ const r=allData.find(r=>r.채널===ch&&r.월===m); return r?Number(r[key])||0:0; }); }
-  function calcChange(arr) { if(arr.length<2)return null; const p=arr[arr.length-2],c=arr[arr.length-1]; if(!p)return null; return((c-p)/Math.abs(p))*100; }
   function changeHtml(pct) {
     if(pct===null) return '<div class="metric-change-wrap"><span class="metric-change-label">전월대비</span><span class="metric-change neutral">-</span></div>';
     const cls=pct>=0?"up":"down", arrow=pct>=0?"▲":"▼";
@@ -97,34 +114,22 @@
   }
   function fmtViews(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return v.toLocaleString(); }
   function fmtMoney(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return v.toLocaleString(); }
-  function destroyCharts() { Object.values(charts).forEach(c=>c.destroy()); charts={}; }
-
-  function avatarHtml(ch) {
-    const info = CHANNEL_INFO[ch] || { bg: "#999", text: ch[0] };
-    return `<img class="channel-avatar" src="${info.img}"
-      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-      <div class="channel-avatar-fallback" style="background:${info.bg};display:none;">${info.text}</div>`;
-  }
 
   function drawUploadChart(id, totalH, longH, shortH, color) {
     const ctx = document.getElementById(id); if(!ctx) return;
     const lastIdx = totalH.length - 1;
     charts[id] = new Chart(ctx, {
       type: "line",
-      data: { labels: getMonths(), datasets: [{ data: totalH, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
+      data: { labels: DATA.months, datasets: [{ data: totalH, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
       options: {
         responsive: true, maintainAspectRatio: false,
         layout: { padding: { top: 30, left: 28, right: 28, bottom: 4 } },
         plugins: {
           legend: { display: false }, tooltip: { enabled: false },
           datalabels: {
-            display: true,
-            color: color,
-            backgroundColor: "rgba(255,255,255,0.9)",
-            borderRadius: 4,
-            padding: { top: 2, bottom: 2, left: 5, right: 5 },
-            font: { size: 11, weight: "700" },
-            align: "top", anchor: "end", offset: 4, clamp: true,
+            display: true, color: color, backgroundColor: "rgba(255,255,255,0.9)",
+            borderRadius: 4, padding: { top: 2, bottom: 2, left: 5, right: 5 },
+            font: { size: 11, weight: "700" }, align: "top", anchor: "end", offset: 4, clamp: true,
             formatter: (v, ctx) => {
               const i = ctx.dataIndex;
               if(i === lastIdx) return String(v);
@@ -132,7 +137,7 @@
             }
           }
         },
-        scales: { x: { ticks: { font: { size: 11 }, color: "#bbb" }, grid: { display: false }, border: { display: false } }, y: { display: false, grace: "120%" }
+        scales: { x: { ticks: { font: { size: 11 }, color: "#bbb" }, grid: { display: false }, border: { display: false } }, y: { display: false, grace: "80%" } }
       }
     });
   }
@@ -141,7 +146,7 @@
     const ctx = document.getElementById(id); if(!ctx) return;
     charts[id] = new Chart(ctx, {
       type: "line",
-      data: { labels: getMonths(), datasets: [{ data, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
+      data: { labels: DATA.months, datasets: [{ data, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
       options: {
         responsive: true, maintainAspectRatio: false,
         layout: { padding: { top: 30, left: 28, right: 28, bottom: 4 } },
@@ -154,69 +159,54 @@
     });
   }
 
-  function renderCards() {
-    destroyCharts();
-    const months = getMonths();
-    if(!months.length) { document.getElementById("main").innerHTML='<div class="no-data">데이터가 없어요.</div>'; return; }
-    document.getElementById("main").innerHTML = `<div class="channel-grid">${CHANNELS.map(ch => {
-      const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
-      const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
-      const uid=ch.replace(/\s/g,"");
+  function render() {
+    Object.values(charts).forEach(c=>c.destroy()); charts = {};
+    document.getElementById("grid").innerHTML = CHANNELS.map(ch => {
+      const d = DATA.channels[ch];
+      const totalH = d.롱폼.map((v,i) => v + d.숏폼[i]);
+      const uid = ch.replace(/\s/g,"");
       return `<div class="channel-card">
         <div class="channel-header">
-          ${avatarHtml(ch)}
+          <img class="channel-avatar" src="${d.img}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+          <div class="channel-avatar-fallback" style="background:${d.bg};display:none;">${d.text}</div>
           <div class="channel-name">${ch}</div>
         </div>
         <div class="metric-block">
           <div class="metric-label">당월 업로드 건수</div>
-          <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1].toLocaleString()}건</span></div>
+          <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1]}건</span></div>
           ${changeHtml(calcChange(totalH))}
-          <div class="upload-badges"><span class="badge long">롱폼 ${longH[longH.length-1]}</span><span class="badge short">숏폼 ${shortH[shortH.length-1]}</span></div>
+          <div class="upload-badges"><span class="badge long">롱폼 ${d.롱폼[d.롱폼.length-1]}</span><span class="badge short">숏폼 ${d.숏폼[d.숏폼.length-1]}</span></div>
           <div class="mini-chart-wrap"><canvas id="u-${uid}"></canvas></div>
         </div>
         <div class="metric-block">
           <div class="metric-label">당월 조회수</div>
-          <div class="metric-main"><span class="metric-value">${fmtViews(viewsH[viewsH.length-1])}</span></div>
-          ${changeHtml(calcChange(viewsH))}
+          <div class="metric-main"><span class="metric-value">${fmtViews(d.조회수[d.조회수.length-1])}</span></div>
+          ${changeHtml(calcChange(d.조회수))}
           <div class="mini-chart-wrap"><canvas id="v-${uid}"></canvas></div>
         </div>
         <div class="metric-block">
           <div class="metric-label">당월 수익 (원)</div>
-          <div class="metric-main"><span class="metric-value">${fmtMoney(revenueH[revenueH.length-1])}</span></div>
-          ${changeHtml(calcChange(revenueH))}
+          <div class="metric-main"><span class="metric-value">${fmtMoney(d.수익[d.수익.length-1])}</span></div>
+          ${changeHtml(calcChange(d.수익))}
           <div class="mini-chart-wrap"><canvas id="r-${uid}"></canvas></div>
         </div>
       </div>`;
-    }).join("")}</div>`;
+    }).join("");
 
     requestAnimationFrame(() => {
       CHANNELS.forEach(ch => {
-        const uid=ch.replace(/\s/g,"");
-        const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
-        const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
-        drawUploadChart(`u-${uid}`, totalH, longH, shortH, "#6366f1");
-        drawChart(`v-${uid}`, viewsH, "#f59e0b", v=>fmtViews(v));
-        drawChart(`r-${uid}`, revenueH, "#10b981", v=>fmtMoney(v));
+        const d = DATA.channels[ch];
+        const uid = ch.replace(/\s/g,"");
+        const totalH = d.롱폼.map((v,i) => v + d.숏폼[i]);
+        drawUploadChart(`u-${uid}`, totalH, d.롱폼, d.숏폼, "#6366f1");
+        drawChart(`v-${uid}`, d.조회수, "#f59e0b", v=>fmtViews(v));
+        drawChart(`r-${uid}`, d.수익, "#10b981", v=>fmtMoney(v));
       });
     });
     document.getElementById("lastUpdated").textContent = `마지막 업데이트: ${new Date().toLocaleString("ko-KR",{month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}`;
   }
 
-  async function loadData() {
-    document.getElementById("main").innerHTML='<div class="loading"><div class="spinner"></div><div>데이터를 불러오는 중...</div></div>';
-    try {
-      const SHEETS_URL = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?output=csv`;
-      const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(SHEETS_URL));
-      const text = await res.text();
-      const rows = text.trim().split("\n").map(r=>r.split(","));
-      const headers = rows[0];
-      allData = rows.slice(1).map(r=>{ const obj={}; headers.forEach((h,i)=>{ obj[h.trim()]=r[i]?.trim()||""; }); return obj; }).filter(r=>r["월"]&&r["채널"]);
-      renderCards();
-    } catch(e) {
-      document.getElementById("main").innerHTML=`<div class="no-data">⚠️ 데이터를 불러오지 못했어요: ${e.message}</div>`;
-    }
-  }
-  loadData();
+  render();
 </script>
 </body>
 </html>
