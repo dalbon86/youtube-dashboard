@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v8 -->
+<!-- v9 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -28,7 +28,9 @@
     .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     @media (max-width: 900px) { .channel-grid { grid-template-columns: 1fr; } }
     .channel-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px 32px; }
-    .channel-name { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .channel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .channel-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; font-weight: 900; flex-shrink: 0; }
+    .channel-name { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
     .metric-block { padding: 22px 0; border-bottom: 1px solid var(--border); }
     .metric-block:last-child { border-bottom: none; padding-bottom: 0; }
     .metric-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
@@ -73,35 +75,27 @@
   Chart.register(ChartDataLabels);
   const SHEET_ID = "1X2rZQ7gFUKNE6Bbf9iuKXObq0TZ1bqTOjDrlEkyw5Js";
   const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
+  const AVATARS = {
+    "스튜디오지니": { bg: "#6366f1", text: "지" },
+    "스밍스":       { bg: "#f59e0b", text: "스" },
+    "쇼숏":         { bg: "#10b981", text: "쇼" }
+  };
   const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
   let allData = [], charts = {};
 
-  function getMonths() { const all=[...new Set(allData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b)); return all.slice(-3); }
+  function getMonths() {
+    const all = [...new Set(allData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b));
+    return all.slice(-3);
+  }
   function getHistory(ch,key) { return getMonths().map(m=>{ const r=allData.find(r=>r.채널===ch&&r.월===m); return r?Number(r[key])||0:0; }); }
   function calcChange(arr) { if(arr.length<2)return null; const p=arr[arr.length-2],c=arr[arr.length-1]; if(!p)return null; return((c-p)/Math.abs(p))*100; }
-
   function changeHtml(pct) {
     if(pct===null) return '<div class="metric-change-wrap"><span class="metric-change-label">전월대비</span><span class="metric-change neutral">-</span></div>';
     const cls=pct>=0?"up":"down", arrow=pct>=0?"▲":"▼";
     return `<div class="metric-change-wrap"><span class="metric-change-label">전월대비</span><span class="metric-change ${cls}">${arrow} ${Math.abs(pct).toFixed(1)}%</span></div>`;
   }
-
-  function fmtViews(v) {
-    if(v>=100000000) return (v/100000000).toFixed(1)+"억";
-    if(v>=10000) return Number((v/10000).toFixed(0)).toLocaleString()+"만";
-    return v.toLocaleString();
-  }
-  function fmtMoney(v) {
-    if(v>=100000000) return (v/100000000).toFixed(1)+"억";
-    if(v>=10000) return Number((v/10000).toFixed(0)).toLocaleString()+"만";
-    return v.toLocaleString();
-  }
-  function fmtChartMoney(v) {
-    if(v>=100000000) return (v/100000000).toFixed(1)+"억";
-    if(v>=10000) return Number((v/10000).toFixed(0)).toLocaleString()+"만";
-    return v.toLocaleString();
-  }
-
+  function fmtViews(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return v.toLocaleString(); }
+  function fmtMoney(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return v.toLocaleString(); }
   function destroyCharts() { Object.values(charts).forEach(c=>c.destroy()); charts={}; }
 
   function drawChart(id, data, color, fmt) {
@@ -126,16 +120,15 @@
     const months = getMonths();
     if(!months.length) { document.getElementById("main").innerHTML='<div class="no-data">데이터가 없어요.</div>'; return; }
     document.getElementById("main").innerHTML = `<div class="channel-grid">${CHANNELS.map(ch => {
+      const av = AVATARS[ch] || { bg: "#999", text: ch[0] };
       const longH=getHistory(ch,"롱폼"), shortH=getHistory(ch,"숏폼"), totalH=longH.map((v,i)=>v+shortH[i]);
       const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
       const uid=ch.replace(/\s/g,"");
-      const AVATARS = {"스튜디오지니":{bg:"#6366f1",emoji:"지"},"스밍스":{bg:"#f59e0b",emoji:"스"},"쇼숏":{bg:"#10b981",emoji:"쇼"}};
-      const av = AVATARS[ch] || {bg:"#999",emoji:ch[0]};
       return `<div class="channel-card">
-              <div class="channel-name" style="display:flex;align-items:center;gap:12px;">
-                <div style="width:44px;height:44px;border-radius:50%;background:${av.bg};display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:900;flex-shrink:0;">${av.emoji}</div>
-                ${ch}
-              </div>
+        <div class="channel-header">
+          <div class="channel-avatar" style="background:${av.bg};">${av.text}</div>
+          <div class="channel-name">${ch}</div>
+        </div>
         <div class="metric-block">
           <div class="metric-label">업로드 건수</div>
           <div class="metric-main"><span class="metric-value">${totalH[totalH.length-1].toLocaleString()}건</span></div>
@@ -165,7 +158,7 @@
         const viewsH=getHistory(ch,"조회수"), revenueH=getHistory(ch,"수익");
         drawChart(`u-${uid}`, totalH, "#6366f1", v=>v.toLocaleString());
         drawChart(`v-${uid}`, viewsH, "#f59e0b", v=>fmtViews(v));
-        drawChart(`r-${uid}`, revenueH, "#10b981", v=>fmtChartMoney(v));
+        drawChart(`r-${uid}`, revenueH, "#10b981", v=>fmtMoney(v));
       });
     });
     document.getElementById("lastUpdated").textContent = `마지막 업데이트: ${new Date().toLocaleString("ko-KR",{month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}`;
