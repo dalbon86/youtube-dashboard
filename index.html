@@ -205,11 +205,12 @@
   async function loadData() {
     document.getElementById("main").innerHTML='<div class="loading"><div class="spinner"></div><div>데이터를 불러오는 중...</div></div>';
     try {
-      const res = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`);
+      const SHEETS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/pub?output=csv`;
+      const res = await fetch("https://corsproxy.io/?" + encodeURIComponent(SHEETS_URL));
       const text = await res.text();
-      const json = JSON.parse(text.substring(47, text.length-2));
-      const cols = json.table.cols.map(c=>c.label);
-      allData = json.table.rows.map(row=>{ const obj={}; cols.forEach((col,i)=>{ obj[col]=row.c[i]?.v??""; }); return obj; }).filter(r=>r["월"]&&r["채널"]);
+      const rows = text.trim().split("\n").map(r=>r.split(","));
+      const headers = rows[0];
+      allData = rows.slice(1).map(r=>{ const obj={}; headers.forEach((h,i)=>{ obj[h.trim()]=r[i]?.trim()||""; }); return obj; }).filter(r=>r["월"]&&r["채널"]);
       renderCards();
     } catch(e) {
       document.getElementById("main").innerHTML=`<div class="no-data">⚠️ 데이터를 불러오지 못했어요: ${e.message}</div>`;
