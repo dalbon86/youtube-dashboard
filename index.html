@@ -76,7 +76,7 @@
   const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
   let allData = [], charts = {};
 
-  function getMonths() { return [...new Set(allData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b)); }
+  function getMonths() { const all=[...new Set(allData.map(r=>r.월))].sort((a,b)=>MONTH_ORDER.indexOf(a)-MONTH_ORDER.indexOf(b)); return all.slice(-3); }
   function getHistory(ch,key) { return getMonths().map(m=>{ const r=allData.find(r=>r.채널===ch&&r.월===m); return r?Number(r[key])||0:0; }); }
   function calcChange(arr) { if(arr.length<2)return null; const p=arr[arr.length-2],c=arr[arr.length-1]; if(!p)return null; return((c-p)/Math.abs(p))*100; }
 
