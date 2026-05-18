@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v18 -->
+<!-- v19 -->
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -21,7 +21,7 @@
     .header-title { font-size: 17px; font-weight: 900; letter-spacing: -0.5px; }
     .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .refresh-btn { font-size: 12px; color: var(--muted); background: #f0f0ee; border: none; border-radius: 6px; padding: 6px 12px; cursor: pointer; font-family: inherit; }
-    .tab-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; gap: 0; }
+    .tab-bar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; }
     .tab-btn { padding: 14px 20px; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; border: none; border-bottom: 2px solid transparent; background: none; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
     .tab-btn:hover { color: var(--text); }
     .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
@@ -29,11 +29,9 @@
     .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; gap: 16px; color: var(--muted); }
     .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* 채널별 탭 */
     .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     @media (max-width: 900px) { .channel-grid { grid-template-columns: 1fr; } }
-    .channel-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px 32px; }
+    .channel-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
     .channel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
     .channel-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
     .channel-avatar-fallback { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 900; flex-shrink: 0; }
@@ -55,34 +53,29 @@
     .badge.short { background: #fff7ed; color: #c2410c; }
     .mini-chart-wrap { height: 110px; position: relative; }
 
-    /* 콘텐츠별 탭 */
+    /* 콘텐츠별 */
     .content-section { margin-bottom: 36px; }
-    .content-section-header {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 14px; flex-wrap: wrap;
-    }
+    .content-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .content-section-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
     .content-section-name { font-size: 16px; font-weight: 800; }
-    .month-select {
-      border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px;
-      font-size: 13px; font-weight: 600; color: var(--text); background: var(--white);
-      cursor: pointer; font-family: inherit; outline: none;
-    }
+    .month-select { border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; font-size: 13px; font-weight: 600; color: var(--text); background: var(--white); cursor: pointer; font-family: inherit; outline: none; }
     .popular-label { font-size: 12px; color: var(--muted); font-weight: 600; }
-    .content-table { width: 100%; background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; border-collapse: collapse; }
-    .content-table th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); background: #fafaf9; border-bottom: 1px solid var(--border); letter-spacing: 0.5px; }
-    .content-table th.right { text-align: right; }
-    .content-table td { padding: 14px 16px; font-size: 13px; border-bottom: 1px solid var(--border); }
-    .content-table tr:last-child td { border-bottom: none; }
-    .content-table tr:hover td { background: #fafaf9; }
-    .content-title-cell { font-weight: 600; color: var(--text); }
-    .content-views { text-align: right; font-weight: 700; color: #f59e0b; font-size: 14px; }
-    .content-duration { text-align: right; color: var(--muted); font-size: 13px; }
-    .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; font-size: 12px; font-weight: 800; margin-right: 6px; flex-shrink: 0; }
+
+    /* 콘텐츠 카드 리스트 */
+    .content-list { display: flex; flex-direction: column; gap: 12px; }
+    .content-item { background: var(--white); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; gap: 16px; padding: 14px 16px; transition: background 0.15s; }
+    .content-item:hover { background: #fafaf9; }
+    .content-thumb { width: 120px; height: 68px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #eee; }
+    .content-thumb-placeholder { width: 120px; height: 68px; border-radius: 8px; background: #f0f0ee; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--muted); font-size: 20px; }
+    .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 7px; font-size: 13px; font-weight: 800; flex-shrink: 0; }
     .rank-1 { background: #fef9c3; color: #854d0e; }
     .rank-2 { background: #f1f5f9; color: #475569; }
     .rank-3 { background: #fff7ed; color: #9a3412; }
     .rank-other { background: #f4f4f2; color: var(--muted); }
+    .content-info { flex: 1; min-width: 0; }
+    .content-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .content-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+    .content-views-val { font-weight: 700; color: #f59e0b; font-size: 15px; }
 
     .no-data { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
     .last-updated { font-size: 12px; color: var(--muted); }
@@ -102,22 +95,17 @@
     <button class="refresh-btn" onclick="loadAll()">↺ 새로고침</button>
   </div>
 </header>
-
 <div class="tab-bar">
   <button class="tab-btn active" onclick="switchTab('monthly')">최근 3개월 비교</button>
   <button class="tab-btn" onclick="switchTab('content')">콘텐츠별</button>
 </div>
-
 <main id="main">
   <div class="loading"><div class="spinner"></div><div>데이터를 불러오는 중...</div></div>
 </main>
-
 <script>
   Chart.register(ChartDataLabels);
-
   const URL1 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyFBNZzA4Ght-y8QuCJOhYcj2nGqtrbFhAzTTXdMzk37lGTKpdI_aBlyBVWn_STnsjyDHef5MtfFJ3/pub?output=csv";
   const URL2 = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyFBNZzA4Ght-y8QuCJOhYcj2nGqtrbFhAzTTXdMzk37lGTKpdI_aBlyBVWn_STnsjyDHef5MtfFJ3/pub?gid=1395502059&single=true&output=csv";
-
   const CHANNELS = ["스튜디오지니","스밍스","쇼숏"];
   const CHANNEL_INFO = {
     "스튜디오지니": { img: "sgn_profile.jpg", bg: "#6366f1", text: "지" },
@@ -125,23 +113,36 @@
     "쇼숏":         { img: "ss_profile.jpg",  bg: "#10b981", text: "쇼" }
   };
   const MONTH_ORDER = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
-
-  let monthlyData = [], contentData = [], charts = {}, currentTab = "monthly";
-  let selectedMonths = {}; // 채널별 선택된 월
+  let monthlyData = [], contentData = [], charts = {}, currentTab = "monthly", selectedMonths = {};
 
   function parseCSV(text) {
     const rows = text.trim().split("\n").map(r => {
-      const result = [], re = /(".*?"|[^,]+)(?=,|$)/g;
-      let m;
+      const result = [], re = /(".*?"|[^,]+)(?=,|$)/g; let m;
       while((m = re.exec(r)) !== null) result.push(m[1].replace(/^"|"$/g,'').trim());
       return result;
     });
     const headers = rows[0];
-    return rows.slice(1).map(r => {
-      const obj = {};
-      headers.forEach((h,i) => { obj[h] = r[i] || ""; });
-      return obj;
-    });
+    return rows.slice(1).map(r => { const obj = {}; headers.forEach((h,i) => { obj[h] = r[i] || ""; }); return obj; });
+  }
+
+  function getVideoId(url) {
+    if(!url) return null;
+    // watch?v=ID
+    let m = url.match(/[?&]v=([^&]+)/);
+    if(m) return m[1];
+    // shorts/ID
+    m = url.match(/shorts\/([^?&]+)/);
+    if(m) return m[1];
+    // youtu.be/ID
+    m = url.match(/youtu\.be\/([^?&]+)/);
+    if(m) return m[1];
+    return null;
+  }
+
+  function thumbHtml(url) {
+    const id = getVideoId(url);
+    if(id) return `<img class="content-thumb" src="https://img.youtube.com/vi/${id}/mqdefault.jpg" onerror="this.outerHTML='<div class=content-thumb-placeholder>▶</div>'" />`;
+    return `<div class="content-thumb-placeholder">▶</div>`;
   }
 
   function getMonths() {
@@ -165,50 +166,31 @@
   function fmtViews(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return Number(v).toLocaleString(); }
   function fmtMoney(v) { if(v>=100000000)return(v/100000000).toFixed(1)+"억"; if(v>=10000)return Number((v/10000).toFixed(0)).toLocaleString()+"만"; return Number(v).toLocaleString(); }
   function destroyCharts() { Object.values(charts).forEach(c=>c.destroy()); charts={}; }
-
   function avatarHtml(ch) {
-    const info = CHANNEL_INFO[ch] || { bg: "#999", text: ch[0] };
-    return `<img class="channel-avatar" src="${info.img}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
-      <div class="channel-avatar-fallback" style="background:${info.bg};display:none;">${info.text}</div>`;
+    const info = CHANNEL_INFO[ch] || { bg:"#999", text:ch[0] };
+    return `<img class="channel-avatar" src="${info.img}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" /><div class="channel-avatar-fallback" style="background:${info.bg};display:none;">${info.text}</div>`;
   }
 
   function drawUploadChart(id, totalH, longH, shortH, color) {
     const ctx = document.getElementById(id); if(!ctx) return;
     const lastIdx = totalH.length - 1;
     charts[id] = new Chart(ctx, {
-      type: "line",
-      data: { labels: getMonths(), datasets: [{ data: totalH, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        layout: { padding: { top: 30, left: 28, right: 28, bottom: 4 } },
-        plugins: {
-          legend: { display: false }, tooltip: { enabled: false },
-          datalabels: {
-            display: true, color: color, backgroundColor: "rgba(255,255,255,0.9)",
-            borderRadius: 4, padding: { top: 2, bottom: 2, left: 5, right: 5 },
-            font: { size: 11, weight: "700" }, align: "top", anchor: "end", offset: 4, clamp: true,
-            formatter: (v, ctx) => { const i=ctx.dataIndex; return i===lastIdx ? String(v) : `${v}  (${longH[i]}, ${shortH[i]})`; }
-          }
-        },
-        scales: { x: { ticks: { font: { size: 11 }, color: "#bbb" }, grid: { display: false }, border: { display: false } }, y: { display: false, grace: "80%" } }
-      }
+      type:"line", data:{ labels:getMonths(), datasets:[{ data:totalH, borderColor:color, borderWidth:2.5, pointBackgroundColor:color, pointRadius:5, tension:0.3, fill:false }] },
+      options:{ responsive:true, maintainAspectRatio:false, layout:{ padding:{ top:30, left:28, right:28, bottom:4 } },
+        plugins:{ legend:{display:false}, tooltip:{enabled:false},
+          datalabels:{ display:true, color:color, backgroundColor:"rgba(255,255,255,0.9)", borderRadius:4, padding:{top:2,bottom:2,left:5,right:5}, font:{size:11,weight:"700"}, align:"top", anchor:"end", offset:4, clamp:true,
+            formatter:(v,ctx)=>{ const i=ctx.dataIndex; return i===lastIdx?String(v):`${v}  (${longH[i]}, ${shortH[i]})`; } } },
+        scales:{ x:{ ticks:{font:{size:11},color:"#bbb"}, grid:{display:false}, border:{display:false} }, y:{ display:false, grace:"80%" } } }
     });
   }
-
   function drawChart(id, data, color, fmt) {
     const ctx = document.getElementById(id); if(!ctx) return;
     charts[id] = new Chart(ctx, {
-      type: "line",
-      data: { labels: getMonths(), datasets: [{ data, borderColor: color, borderWidth: 2.5, pointBackgroundColor: color, pointRadius: 5, tension: 0.3, fill: false }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        layout: { padding: { top: 30, left: 28, right: 28, bottom: 4 } },
-        plugins: {
-          legend: { display: false }, tooltip: { enabled: false },
-          datalabels: { display: true, color: color, backgroundColor: "rgba(255,255,255,0.9)", borderRadius: 4, padding: { top: 2, bottom: 2, left: 5, right: 5 }, font: { size: 11, weight: "700" }, align: "top", anchor: "end", offset: 4, clamp: true, formatter: fmt }
-        },
-        scales: { x: { ticks: { font: { size: 11 }, color: "#bbb" }, grid: { display: false }, border: { display: false } }, y: { display: false, grace: "60%" } }
-      }
+      type:"line", data:{ labels:getMonths(), datasets:[{ data, borderColor:color, borderWidth:2.5, pointBackgroundColor:color, pointRadius:5, tension:0.3, fill:false }] },
+      options:{ responsive:true, maintainAspectRatio:false, layout:{ padding:{ top:30, left:28, right:28, bottom:4 } },
+        plugins:{ legend:{display:false}, tooltip:{enabled:false},
+          datalabels:{ display:true, color:color, backgroundColor:"rgba(255,255,255,0.9)", borderRadius:4, padding:{top:2,bottom:2,left:5,right:5}, font:{size:11,weight:"700"}, align:"top", anchor:"end", offset:4, clamp:true, formatter:fmt } },
+        scales:{ x:{ ticks:{font:{size:11},color:"#bbb"}, grid:{display:false}, border:{display:false} }, y:{ display:false, grace:"60%" } } }
     });
   }
 
@@ -243,7 +225,6 @@
         </div>
       </div>`;
     }).join("")}</div>`;
-
     requestAnimationFrame(() => {
       CHANNELS.forEach(ch => {
         const uid=ch.replace(/\s/g,"");
@@ -257,53 +238,43 @@
 
   function renderContentSection(ch) {
     const months = getContentMonths();
-    const latestMonth = getLatestMonth(); // 시트1 기준 최근 월
+    const latestMonth = getLatestMonth();
     const selectedMonth = selectedMonths[ch] || latestMonth;
-    const info = CHANNEL_INFO[ch] || { bg: "#999", text: ch[0] };
-    const items = contentData.filter(r => r.채널명===ch && r.월===selectedMonth)
-      .sort((a,b) => Number(b.조회수)-Number(a.조회수))
-      .slice(0, 5);
-
-    const rankBadge = (i) => {
-      const cls = i===0?"rank-1":i===1?"rank-2":i===2?"rank-3":"rank-other";
-      return `<span class="rank-badge ${cls}">${i+1}</span>`;
-    };
-
+    const info = CHANNEL_INFO[ch] || { bg:"#999", text:ch[0] };
+    const items = contentData.filter(r=>r.채널명===ch&&r.월===selectedMonth)
+      .sort((a,b)=>Number(b.조회수)-Number(a.조회수)).slice(0,5);
+    const rankCls = (i) => ["rank-1","rank-2","rank-3","rank-other","rank-other"][i] || "rank-other";
     const uid = ch.replace(/\s/g,"");
     return `<div class="content-section" id="section-${uid}">
       <div class="content-section-header">
         <img class="content-section-avatar" src="${info.img}" onerror="this.style.display='none'" />
         <span class="content-section-name">${ch}</span>
         <select class="month-select" onchange="changeMonth('${ch}', this.value)">
-          ${months.map(m => `<option value="${m}" ${m===selectedMonth?"selected":""}>${m}</option>`).join("")}
+          ${months.map(m=>`<option value="${m}" ${m===selectedMonth?"selected":""}>${m}</option>`).join("")}
         </select>
         <span class="popular-label">인기 콘텐츠 상위 5개</span>
       </div>
-      ${items.length ? `
-      <table class="content-table">
-        <thead>
-          <tr>
-            <th>콘텐츠명</th>
-            <th class="right">평균 시청 지속 시간</th>
-            <th class="right">조회수</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((item,i) => `
-            <tr>
-              <td class="content-title-cell">${rankBadge(i)}${item.콘텐츠명||"-"}</td>
-              <td class="content-duration">${item["평균 시청 지속 시"]||item["평균 시청 지속 시간"]||"-"}</td>
-              <td class="content-views">${Number(item.조회수).toLocaleString()}</td>
-            </tr>`).join("")}
-        </tbody>
-      </table>` : `<div class="no-data" style="padding:30px;">이 달 데이터가 없어요.</div>`}
+      ${items.length ? `<div class="content-list">
+        ${items.map((item,i)=>`
+          <div class="content-item">
+            <span class="rank-badge ${rankCls(i)}">${i+1}</span>
+            ${thumbHtml(item.URL||item["URL"]||"")}
+            <div class="content-info">
+              <div class="content-title">${item.콘텐츠명||"-"}</div>
+              <div class="content-meta">
+                <span>⏱ ${item["평균 시청 지속 시"]||item["평균 시청 지속 시간"]||"-"}</span>
+                <span class="content-views-val">👁 ${Number(item.조회수).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>`).join("")}
+      </div>` : `<div class="no-data" style="padding:30px;">이 달 데이터가 없어요.</div>`}
     </div>`;
   }
 
   function renderContent() {
     destroyCharts();
     if(!contentData.length) { document.getElementById("main").innerHTML='<div class="no-data">콘텐츠 데이터가 없어요.</div>'; return; }
-    document.getElementById("main").innerHTML = CHANNELS.map(ch => renderContentSection(ch)).join("");
+    document.getElementById("main").innerHTML = CHANNELS.map(ch=>renderContentSection(ch)).join("");
   }
 
   function changeMonth(ch, month) {
@@ -318,25 +289,22 @@
     document.querySelectorAll(".tab-btn").forEach((btn,i) => {
       btn.classList.toggle("active", (i===0&&tab==="monthly")||(i===1&&tab==="content"));
     });
-    if(tab==="monthly") renderMonthly();
-    else renderContent();
+    if(tab==="monthly") renderMonthly(); else renderContent();
   }
 
   async function loadAll() {
     document.getElementById("main").innerHTML='<div class="loading"><div class="spinner"></div><div>데이터를 불러오는 중...</div></div>';
     try {
-      const [r1, r2] = await Promise.all([fetch(URL1), fetch(URL2)]);
-      const [t1, t2] = await Promise.all([r1.text(), r2.text()]);
+      const [r1,r2] = await Promise.all([fetch(URL1),fetch(URL2)]);
+      const [t1,t2] = await Promise.all([r1.text(),r2.text()]);
       monthlyData = parseCSV(t1).filter(r=>r.월&&r.채널);
       contentData = parseCSV(t2).filter(r=>r.월&&r.채널명);
       document.getElementById("lastUpdated").textContent = `마지막 업데이트: ${new Date().toLocaleString("ko-KR",{month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}`;
-      if(currentTab==="monthly") renderMonthly();
-      else renderContent();
+      if(currentTab==="monthly") renderMonthly(); else renderContent();
     } catch(e) {
       document.getElementById("main").innerHTML=`<div class="no-data">⚠️ 데이터를 불러오지 못했어요: ${e.message}</div>`;
     }
   }
-
   loadAll();
 </script>
 </body>
